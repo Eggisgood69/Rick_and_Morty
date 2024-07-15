@@ -1,35 +1,39 @@
-@import './base.css';
+/* @import './base.css'; */
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+body {
+  background-image: url('https://image-cdn.hypb.st/https%3A%2F%2Fhk.hypebeast.com%2Ffiles%2F2023%2F07%2Frick-and-morty-the-anime-gets-first-teaser-trailer-0.jpg?fit=max&cbr=1&q=90&w=750&h=500');
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(10px);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  width: auto;
+  /* height: 100vh; */
+  height: auto;
+  margin: 0;
+  padding: 0;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+h1 {
+  text-shadow: 4px 8px 3px rgb(92, 92, 92);
+  color: white;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+h2 {
+  text-shadow: 0px 5px 10px rgb(92, 92, 92);
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+a {
+  text-shadow: 4px 5px 3px rgb(92, 92, 92);
+  color: white;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+p {
+  text-shadow: 0px 5px 10px rgb(92, 92, 92);
+}
+
+* {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 400;
+  font-style: italic;
 }
