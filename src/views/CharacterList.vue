@@ -4,9 +4,11 @@ import CharacterCard from '@/components/CharacterCard.vue'
 
 const characters = ref([])
 const currentPage = ref(1)
+// totalPage
 const pageSize = ref(0)
 const search = ref('')
 const loading = ref(false)
+const showGender = ref(false)
 
 // 取得角色列表
 const fetchCharacters = async (page = 1) => {
@@ -34,6 +36,7 @@ onMounted(() => {
 // 載入更多角色
 const loadMore = () => {
   if (currentPage.value < pageSize.value) {
+    console.log('load more')
     currentPage.value += 1
     fetchCharacters(currentPage.value)
   }
@@ -52,14 +55,22 @@ onMounted(() => {
   observer.observe(document.querySelector('.observer'))
 })
 
+const restCharacters = () => {
+  characters.value = []
+  currentPage.value = 1
+  fetchCharacters(currentPage.value)
+  showGender.value = false
+}
+
 // 篩選角色
 const filterCharacters = async (gender) => {
   if (gender === 'All') {
-    characters.value = []
-    await fetchCharacters(1)
+    restCharacters()
   } else if (gender === 'Male') {
+    showGender.value = true
     characters.value = [...characters.value.filter((character) => character.gender === 'Male')]
   } else if (gender === 'Female') {
+    showGender.value = true
     characters.value = [...characters.value.filter((character) => character.gender === 'Female')]
   }
 }
@@ -115,7 +126,7 @@ const filterCharacters = async (gender) => {
       <p class="font-bold text-center text-5xl h-screen pt-10">Not found Character.</p>
     </div>
 
-    <div class="observer" style="height: 5px"></div>
+    <div v-if="!showGender" class="observer" style="height: 5px"></div>
   </div>
 </template>
 
