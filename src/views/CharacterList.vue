@@ -5,7 +5,7 @@ import CharacterCard from '@/components/CharacterCard.vue'
 const characters = ref([])
 const currentPage = ref(1)
 // totalPage
-const pageSize = ref(0)
+const totalPage = ref(0)
 const search = ref('')
 const loading = ref(false)
 const showGender = ref(false)
@@ -17,7 +17,7 @@ const fetchCharacters = async (page = 1) => {
   const data = await response.json()
   characters.value = [...characters.value, ...data.results] || []
   // characters.value = data.results
-  pageSize.value = data.info.pages || 1
+  totalPage.value = data.info.pages || 1
   loading.value = false
 }
 
@@ -35,8 +35,7 @@ onMounted(() => {
 
 // 載入更多角色
 const loadMore = () => {
-  if (currentPage.value < pageSize.value) {
-    console.log('load more')
+  if (currentPage.value < totalPage.value) {
     currentPage.value += 1
     fetchCharacters(currentPage.value)
   }
