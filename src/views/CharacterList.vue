@@ -4,18 +4,21 @@ import CharacterCard from '@/components/CharacterCard.vue'
 
 const characters = ref([])
 const currentPage = ref(1)
-const pageSize = ref(0)
+// totalPage
+const totalPage = ref(0)
 const search = ref('')
 const loading = ref(false)
+const showGender = ref(false)
+const currentGender = ref('')
 
 // 取得角色列表
-const fetchCharacters = async (page = 1) => {
+const fetchCharacters = async (param) => {
   loading.value = true
-  const response = await fetch(`https://rickandmortyapi.com/api/character/?page=${page}`)
+  const response = await fetch(`https://rickandmortyapi.com/api/character/?${param}`)
   const data = await response.json()
   characters.value = [...characters.value, ...data.results] || []
   // characters.value = data.results
-  pageSize.value = data.info.pages || 1
+  totalPage.value = data.info.pages || 1
   loading.value = false
 }
 
@@ -28,14 +31,18 @@ const filteredCharacters = computed(() => {
 
 // 首次載入角色列表
 onMounted(() => {
-  fetchCharacters(currentPage.value)
+  fetchCharacters(`page=${currentPage.value}`)
 })
 
 // 載入更多角色
 const loadMore = () => {
-  if (currentPage.value < pageSize.value) {
+  if (currentPage.value < totalPage.value) {
     currentPage.value += 1
-    fetchCharacters(currentPage.value)
+    if (currentGender.value !== '' ) {
+      fetchCharacters(`page=${currentPage.value}&gender=${currentGender.value}`)
+    } else {
+      fetchCharacters(`page=${currentPage.value}`)
+    }
   }
 }
 
@@ -52,15 +59,21 @@ onMounted(() => {
   observer.observe(document.querySelector('.observer'))
 })
 
+const restCharacters = async() => {
+  characters.value = []
+  currentPage.value = 1
+  showGender.value = false
+  currentGender.value = ''
+}
+
 // 篩選角色
 const filterCharacters = async (gender) => {
+  restCharacters()
   if (gender === 'All') {
-    characters.value = []
-    await fetchCharacters(1)
-  } else if (gender === 'Male') {
-    characters.value = [...characters.value.filter((character) => character.gender === 'Male')]
-  } else if (gender === 'Female') {
-    characters.value = [...characters.value.filter((character) => character.gender === 'Female')]
+    await fetchCharacters(currentPage.value)
+  } else {
+    currentGender.value = gender
+    fetchCharacters(`page=${currentPage.value}&gender=${gender}`)
   }
 }
 </script>
@@ -115,7 +128,7 @@ const filterCharacters = async (gender) => {
       <p class="font-bold text-center text-5xl h-screen pt-10">Not found Character.</p>
     </div>
 
-    <div class="observer" style="height: 5px"></div>
+    <div v-if="!showGender" class="observer" style="height: 5px"></div>
   </div>
 </template>
 
