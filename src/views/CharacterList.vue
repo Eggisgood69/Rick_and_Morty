@@ -9,11 +9,12 @@ const totalPage = ref(0)
 const search = ref('')
 const loading = ref(false)
 const showGender = ref(false)
+const currentGender = ref('')
 
 // 取得角色列表
-const fetchCharacters = async (page = 1) => {
+const fetchCharacters = async (param) => {
   loading.value = true
-  const response = await fetch(`https://rickandmortyapi.com/api/character/?page=${page}`)
+  const response = await fetch(`https://rickandmortyapi.com/api/character/?${param}`)
   const data = await response.json()
   characters.value = [...characters.value, ...data.results] || []
   // characters.value = data.results
@@ -30,14 +31,18 @@ const filteredCharacters = computed(() => {
 
 // 首次載入角色列表
 onMounted(() => {
-  fetchCharacters(currentPage.value)
+  fetchCharacters(`page=${currentPage.value}`)
 })
 
 // 載入更多角色
 const loadMore = () => {
   if (currentPage.value < totalPage.value) {
     currentPage.value += 1
-    fetchCharacters(currentPage.value)
+    if (currentGender.value !== '' ) {
+      fetchCharacters(`page=${currentPage.value}&gender=${currentGender.value}`)
+    } else {
+      fetchCharacters(`page=${currentPage.value}`)
+    }
   }
 }
 
@@ -54,23 +59,21 @@ onMounted(() => {
   observer.observe(document.querySelector('.observer'))
 })
 
-const restCharacters = () => {
+const restCharacters = async() => {
   characters.value = []
   currentPage.value = 1
-  fetchCharacters(currentPage.value)
   showGender.value = false
+  currentGender.value = ''
 }
 
 // 篩選角色
 const filterCharacters = async (gender) => {
+  restCharacters()
   if (gender === 'All') {
-    restCharacters()
-  } else if (gender === 'Male') {
-    showGender.value = true
-    characters.value = [...characters.value.filter((character) => character.gender === 'Male')]
-  } else if (gender === 'Female') {
-    showGender.value = true
-    characters.value = [...characters.value.filter((character) => character.gender === 'Female')]
+    await fetchCharacters(currentPage.value)
+  } else {
+    currentGender.value = gender
+    fetchCharacters(`page=${currentPage.value}&gender=${gender}`)
   }
 }
 </script>
