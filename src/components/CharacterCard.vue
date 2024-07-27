@@ -7,9 +7,7 @@ defineProps({
 </script>
 
 <template>
-  <div
-    class="shadow-2xl rounded-3xl p-4 m-2 flex flex-col items-center hover:scale-110 transition duration-300 ease-in-out border-y-2 border-white"
-  >
+  <div class="shadow-2xl rounded-3xl p-4 m-2 flex flex-col items-center border-y-2 border-white">
     <img
       class="w-32 h-32 rounded-3xl m-2 shadow-2xl border-2 border-black"
       :src="character.image"
