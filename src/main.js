@@ -2,6 +2,13 @@ import './assets/main.css'
 import './style.css'
 import infiniteScroll from './v-infinite-scroll'
 
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
+NProgress.configure({ showSpinner: false })
+NProgress.start()
+NProgress.done()
+
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
