@@ -1,7 +1,8 @@
 <script setup>
 defineProps({
   character: {
-    type: Object
+    type: Object,
+    required: true
   }
 })
 </script>
@@ -12,6 +13,9 @@ defineProps({
       class="w-32 h-32 rounded-3xl m-2 shadow-2xl border-2 border-black"
       :src="character.image"
       :alt="character.name"
+      width="128"
+      height="128"
+      loading="lazy"
     />
     <h2 class="text-2xl font-bold mt-3 mb-3 text-center">
       {{ character.name }}

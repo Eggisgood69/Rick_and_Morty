@@ -1,60 +1,50 @@
-# RickAndMorty
+# Rick and Morty Characters
 
-This template should help get you started developing with Vue 3 in Vite.
+用 Vue 3 串接 [Rick and Morty API](https://rickandmortyapi.com/) 的角色瀏覽網站。
 
-## Recommended IDE Setup
+## 功能
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- 角色卡片列表，捲到底自動載入下一頁（無限捲動）
+- 依名字搜尋全部角色（輸入停 0.3 秒才送出）
+- 性別（Male / Female）與狀態（Alive / Dead / Unknown）篩選，可以組合使用，再按一次取消
+- 查無結果、網路錯誤時有提示與重試按鈕
+- 卡片捲入畫面時的進場動畫（支援 `animation-timeline` 的瀏覽器）
+- 回到頂部按鈕
 
-## Customize configuration
+## 技術
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+Vue 3（`<script setup>`）、Vite、Tailwind CSS、Vitest、Playwright，部署在 Vercel。
 
-## Project Setup
+## 開發
+
+需要 Node.js 24。
 
 ```sh
 npm install
+npm run dev        # 開發伺服器
+npm run build      # 建置正式版
+npm run lint       # ESLint
+npm run test:unit  # 單元測試（Vitest）
 ```
 
-### Compile and Hot-Reload for Development
+### E2E 測試
+
+E2E 測試會攔截 API 請求，不需要連外網路。
 
 ```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
+npx playwright install   # 第一次執行前安裝瀏覽器
 npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+## 專案結構
 
-```sh
-npm run lint
+```
+src/
+├── App.vue                    # 頁首與版面
+├── views/CharacterList.vue    # 列表、搜尋、篩選、無限捲動
+├── components/
+│   ├── CharacterCard.vue      # 角色卡片
+│   └── ScrollToTop.vue        # 回到頂部按鈕
+└── assets/main.css            # 背景與全域字型樣式
+public/images/background.avif  # 背景圖
 ```

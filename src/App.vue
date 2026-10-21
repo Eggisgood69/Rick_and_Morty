@@ -1,6 +1,6 @@
 <script setup>
 import CharacterList from '@/views/CharacterList.vue'
-import ScrollToTop from './views/ScrollToTop.vue'
+import ScrollToTop from '@/components/ScrollToTop.vue'
 </script>
 
 <template>

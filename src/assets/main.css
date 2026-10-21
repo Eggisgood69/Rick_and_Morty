@@ -1,7 +1,5 @@
-/* @import './base.css'; */
-
 body {
-  background-image: url('https://image-cdn.hypb.st/https%3A%2F%2Fhk.hypebeast.com%2Ffiles%2F2023%2F07%2Frick-and-morty-the-anime-gets-first-teaser-trailer-0.jpg?fit=max&cbr=1&q=90&w=750&h=500');
+  background-image: url('/images/background.avif');
   background-size: cover;
   background-position: center;
   /* backdrop-filter: blur(12px); */
