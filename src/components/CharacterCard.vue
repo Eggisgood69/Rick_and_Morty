@@ -8,7 +8,10 @@ defineProps({
 </script>
 
 <template>
-  <div class="shadow-2xl rounded-3xl p-4 m-2 flex flex-col items-center border-y-2 border-white">
+  <RouterLink
+    :to="{ name: 'character', params: { id: character.id } }"
+    class="shadow-2xl rounded-3xl p-4 m-2 flex flex-col items-center border-y-2 border-white text-black [text-shadow:none] focus-visible:outline-4 focus-visible:outline-blue-500"
+  >
     <img
       class="w-32 h-32 rounded-3xl m-2 shadow-2xl border-2 border-black"
       :src="character.image"
@@ -23,5 +26,5 @@ defineProps({
     <p class="">Status : {{ character.status }}</p>
     <p class="">Species : {{ character.species }}</p>
     <p class="mb-2">Gender : {{ character.gender }}</p>
-  </div>
+  </RouterLink>
 </template>
