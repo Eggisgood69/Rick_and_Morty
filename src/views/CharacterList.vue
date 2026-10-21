@@ -144,7 +144,7 @@ const buttonClass = (active) => [
         type="search"
         v-model.trim="search"
         placeholder="Search Characters"
-        class="mt-6 px-4 w-auto h-14 text-center rounded-3xl shadow-xl text-xl sm:text-2xl opacity-90 focus:outline-none"
+        class="mt-6 px-4 w-auto h-14 text-center rounded-3xl shadow-xl text-xl sm:text-2xl opacity-90 focus:outline-hidden"
       />
       <div class="mx-4 mt-5 gap-4 flex justify-center items-center flex-wrap">
         <button :class="buttonClass(!gender && !status)" @click="showAll">All</button>

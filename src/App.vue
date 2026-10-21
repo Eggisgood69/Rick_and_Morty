@@ -5,7 +5,7 @@ import ScrollToTop from '@/components/ScrollToTop.vue'
 
 <template>
   <header>
-    <div class="text-center p-3 bg-gradient-to-r from-purple-500 to-blue-500 opacity-85">
+    <div class="text-center p-3 bg-linear-to-r from-purple-500 to-blue-500 opacity-85">
       <h1
         class="text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-wide text-white p-5"
       >
