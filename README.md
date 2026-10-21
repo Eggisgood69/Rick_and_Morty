@@ -1,5 +1,7 @@
 # Rick and Morty Characters
 
+[![CI](https://github.com/Eggisgood69/Rick_and_Morty/actions/workflows/ci.yml/badge.svg)](https://github.com/Eggisgood69/Rick_and_Morty/actions/workflows/ci.yml)
+
 用 Vue 3 串接 [Rick and Morty API](https://rickandmortyapi.com/) 的角色瀏覽網站。
 
 ## 功能
@@ -29,7 +31,7 @@ npm run test:unit  # 單元測試（Vitest）
 
 ### E2E 測試
 
-E2E 測試會攔截 API 請求，不需要連外網路。
+E2E 測試會攔截 API 請求，不需要連外網路。每次開 PR 或推送到 `main`，GitHub Actions 都會自動跑 lint、單元測試、build 和 E2E 測試。
 
 ```sh
 npx playwright install   # 第一次執行前安裝瀏覽器
