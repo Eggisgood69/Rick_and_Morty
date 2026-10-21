@@ -60,7 +60,7 @@ const loadNextPage = async () => {
     characters.value.push(...data.results)
     page.value += 1
     totalPages.value = data.info.pages
-  } catch (e) {
+  } catch {
     if (id === requestId) error.value = '載入失敗，請稍後再試。'
   } finally {
     if (id === requestId) {
