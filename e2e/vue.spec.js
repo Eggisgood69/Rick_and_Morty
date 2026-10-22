@@ -63,7 +63,7 @@ test('搜尋不存在的角色會顯示 Not found', async ({ page }) => {
   await page.goto('/')
 
   await page.getByPlaceholder('Search Characters').fill('zzzz')
-  await expect(page.getByText('Not found Character.')).toBeVisible()
+  await expect(page.getByText('No characters found.')).toBeVisible()
   await expect(page).toHaveURL(/\?name=zzzz$/)
 })
 

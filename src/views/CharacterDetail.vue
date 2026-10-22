@@ -56,7 +56,7 @@ const load = async () => {
       episodes.value = Array.isArray(list) ? list : [list]
     }
   } catch {
-    if (id === requestId) error.value = '載入失敗，請稍後再試。'
+    if (id === requestId) error.value = 'Something went wrong. Please try again.'
   } finally {
     if (id === requestId) loading.value = false
   }
@@ -92,7 +92,7 @@ const statusColor = {
 
     <p v-if="loading && !character" class="font-bold text-center text-2xl py-16">Loading...</p>
 
-    <p v-else-if="notFound" class="font-bold text-center text-4xl py-16">Not found Character.</p>
+    <p v-else-if="notFound" class="font-bold text-center text-4xl py-16">No characters found.</p>
 
     <div v-else-if="error" class="text-center py-16">
       <p class="font-bold text-2xl mb-4">{{ error }}</p>
@@ -100,7 +100,7 @@ const statusColor = {
         class="px-4 py-2 bg-gray-200 rounded-xl text-gray-700 hover:bg-gray-300 shadow-xl"
         @click="load"
       >
-        重試
+        Retry
       </button>
     </div>
 

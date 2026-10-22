@@ -87,22 +87,22 @@ describe('CharacterList', () => {
 
     const { wrapper } = await mountList()
 
-    expect(wrapper.text()).toContain('Not found Character.')
+    expect(wrapper.text()).toContain('No characters found.')
     expect(wrapper.find('[data-testid="total-count"]').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('載入失敗')
+    expect(wrapper.text()).not.toContain('Something went wrong')
   })
 
   it('網路錯誤時顯示錯誤訊息，按重試會重新載入', async () => {
     fetchMock.mockRejectedValueOnce(new Error('offline'))
 
     const { wrapper } = await mountList()
-    expect(wrapper.text()).toContain('載入失敗')
+    expect(wrapper.text()).toContain('Something went wrong')
 
     fetchMock.mockResolvedValueOnce(page([makeCharacter(1)]))
-    await button(wrapper, '重試').trigger('click')
+    await button(wrapper, 'Retry').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).not.toContain('載入失敗')
+    expect(wrapper.text()).not.toContain('Something went wrong')
     expect(wrapper.findAll('.auto-show-card')).toHaveLength(1)
   })
 
