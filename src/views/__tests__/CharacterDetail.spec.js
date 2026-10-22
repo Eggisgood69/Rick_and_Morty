@@ -86,7 +86,7 @@ describe('CharacterDetail', () => {
 
     const { wrapper } = await mountDetail('99999')
 
-    expect(wrapper.text()).toContain('Not found Character.')
+    expect(wrapper.text()).toContain('No character found.')
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
@@ -94,12 +94,12 @@ describe('CharacterDetail', () => {
     fetchMock.mockRejectedValueOnce(new Error('offline'))
 
     const { wrapper } = await mountDetail()
-    expect(wrapper.text()).toContain('載入失敗')
+    expect(wrapper.text()).toContain('Failed to load')
 
     fetchMock.mockResolvedValueOnce(ok(rick)).mockResolvedValueOnce(ok([]))
     await wrapper
       .findAll('button')
-      .find((b) => b.text() === '重試')
+      .find((b) => b.text() === 'Retry')
       .trigger('click')
     await flushPromises()
 

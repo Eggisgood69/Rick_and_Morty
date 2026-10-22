@@ -77,7 +77,7 @@ const loadNextPage = async () => {
     totalPages.value = data.info.pages
     totalCount.value = data.info.count
   } catch {
-    if (id === requestId) error.value = '載入失敗，請稍後再試。'
+    if (id === requestId) error.value = 'Failed to load. Please try again.'
   } finally {
     if (id === requestId) {
       loading.value = false
@@ -235,12 +235,12 @@ const buttonClass = (active) => [
       </div>
 
       <p v-if="isEmpty" class="font-bold text-center text-5xl h-screen pt-16">
-        Not found Character.
+        No characters found.
       </p>
       <p v-if="loading" class="font-bold text-center text-2xl py-8">Loading...</p>
       <div v-if="error" class="text-center py-8">
         <p class="font-bold text-2xl mb-4">{{ error }}</p>
-        <button :class="buttonClass(false)" @click="loadNextPage">重試</button>
+        <button :class="buttonClass(false)" @click="loadNextPage">Retry</button>
       </div>
     </div>
     <div ref="sentinel" style="height: 1px"></div>
@@ -252,8 +252,16 @@ const buttonClass = (active) => [
   transition: ease-in-out 0.3s;
 }
 
-.auto-show-card:hover {
-  scale: 1.1;
+/* 只有滑鼠這類能「懸停」的裝置才放大；手機點一下不會卡在放大狀態 */
+@media (hover: hover) {
+  .auto-show-card:hover {
+    scale: 1.1;
+  }
+}
+
+/* 手機上按下時稍微縮小，給點擊回饋 */
+.auto-show-card:active {
+  scale: 0.97;
 }
 
 /* 只有支援捲動驅動動畫的瀏覽器才套用，其他瀏覽器直接顯示卡片 */
