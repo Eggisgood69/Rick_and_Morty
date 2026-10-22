@@ -2,8 +2,7 @@
 import { computed, ref, watch, nextTick, onMounted, onUnmounted, onActivated } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import CharacterCard from '@/components/CharacterCard.vue'
-
-const API_URL = 'https://rickandmortyapi.com/api/character/'
+import { API_URL, ERROR_MESSAGE, NotFoundError, fetchJson, rememberCharacters } from '@/api'
 
 const genderOptions = ['Male', 'Female']
 const statusOptions = [
@@ -58,26 +57,24 @@ const loadNextPage = async () => {
   if (status) params.set('status', status)
 
   try {
-    const response = await fetch(`${API_URL}?${params}`)
+    // fetchJson 遇到流量限制會自動重試，拿過的頁面直接從記憶體取
+    const data = await fetchJson(`${API_URL}/character/?${params}`)
     if (id !== requestId) return
 
-    // API 查無結果時回傳 404
-    if (response.status === 404) {
-      totalPages.value = 0
-      totalCount.value = 0
-      return
-    }
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-
-    const data = await response.json()
-    if (id !== requestId) return
-
+    rememberCharacters(data.results)
     characters.value.push(...data.results)
     page.value += 1
     totalPages.value = data.info.pages
     totalCount.value = data.info.count
-  } catch {
-    if (id === requestId) error.value = 'Failed to load. Please try again.'
+  } catch (e) {
+    if (id !== requestId) return
+    // API 查無結果時回傳 404
+    if (e instanceof NotFoundError) {
+      totalPages.value = 0
+      totalCount.value = 0
+    } else {
+      error.value = ERROR_MESSAGE
+    }
   } finally {
     if (id === requestId) {
       loading.value = false
