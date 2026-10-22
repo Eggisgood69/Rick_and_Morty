@@ -89,20 +89,37 @@ describe('CharacterList', () => {
 
     expect(wrapper.text()).toContain('No characters found.')
     expect(wrapper.find('[data-testid="total-count"]').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('Failed to load')
+    expect(wrapper.text()).not.toContain('server is busy')
+    // 404 不需要重試
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
-  it('網路錯誤時顯示錯誤訊息，按重試會重新載入', async () => {
-    fetchMock.mockRejectedValueOnce(new Error('offline'))
+  it('偶爾失敗（流量限制）時自動重試，使用者看不到錯誤', async () => {
+    fetchMock
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce({ ok: false, status: 429, json: async () => ({}) })
+      .mockResolvedValueOnce(page([makeCharacter(1)]))
 
     const { wrapper } = await mountList()
-    expect(wrapper.text()).toContain('Failed to load')
 
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(wrapper.text()).not.toContain('server is busy')
+    expect(wrapper.findAll('.auto-show-card')).toHaveLength(1)
+  })
+
+  it('重試後仍失敗才顯示錯誤訊息，按 Retry 會重新載入', async () => {
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'))
+
+    const { wrapper } = await mountList()
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(wrapper.text()).toContain('server is busy')
+
+    fetchMock.mockReset()
     fetchMock.mockResolvedValueOnce(page([makeCharacter(1)]))
     await button(wrapper, 'Retry').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).not.toContain('Failed to load')
+    expect(wrapper.text()).not.toContain('server is busy')
     expect(wrapper.findAll('.auto-show-card')).toHaveLength(1)
   })
 
@@ -133,8 +150,10 @@ describe('CharacterList', () => {
     await button(wrapper, '#Male').trigger('click')
     await flushPromises()
 
-    expect(lastParams().has('gender')).toBe(false)
     expect(router.currentRoute.value.query).toEqual({})
+    expect(button(wrapper, 'All').attributes('aria-pressed')).toBe('true')
+    // 回到沒有篩選的狀態：第一頁已經載入過，不用再請求一次
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('從網址讀取起始條件（分享連結、重新整理）', async () => {
@@ -168,10 +187,12 @@ describe('CharacterList', () => {
     await flushPromises()
     expect(lastParams().get('gender')).toBe('Female')
 
+    const callsBefore = fetchMock.mock.calls.length
     router.back()
     await flushPromises()
 
-    expect(lastParams().has('gender')).toBe(false)
+    // 前一組條件已經載入過，直接用記憶體裡的資料，不再發請求
+    expect(fetchMock.mock.calls.length).toBe(callsBefore)
     expect(button(wrapper, 'All').attributes('aria-pressed')).toBe('true')
   })
 

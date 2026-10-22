@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import CharacterDetail from '../CharacterDetail.vue'
 import { routes } from '@/router'
+import { rememberCharacters } from '@/api'
 
 const rick = {
   id: 1,
@@ -90,12 +91,14 @@ describe('CharacterDetail', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
-  it('網路錯誤時可以重試', async () => {
-    fetchMock.mockRejectedValueOnce(new Error('offline'))
+  it('重試後仍失敗才顯示錯誤，按 Retry 可以重新載入', async () => {
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'))
 
     const { wrapper } = await mountDetail()
-    expect(wrapper.text()).toContain('Failed to load')
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(wrapper.text()).toContain('server is busy')
 
+    fetchMock.mockReset()
     fetchMock.mockResolvedValueOnce(ok(rick)).mockResolvedValueOnce(ok([]))
     await wrapper
       .findAll('button')
@@ -117,5 +120,50 @@ describe('CharacterDetail', () => {
     await flushPromises()
 
     expect(router.currentRoute.value.name).toBe('characters')
+  })
+
+  it('偶爾失敗時自動重試，使用者看不到錯誤', async () => {
+    fetchMock
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(ok(rick))
+      .mockResolvedValueOnce(ok([episode(1, 'S01E01', 'Pilot')]))
+
+    const { wrapper } = await mountDetail()
+
+    expect(wrapper.get('h2').text()).toBe('Rick Sanchez')
+    expect(wrapper.text()).not.toContain('server is busy')
+    expect(wrapper.findAll('[data-testid="episode-list"] li')).toHaveLength(1)
+  })
+
+  it('集數載入失敗時，角色資料照樣顯示，只有集數區塊可以重試', async () => {
+    fetchMock.mockResolvedValueOnce(ok(rick)).mockRejectedValue(new TypeError('Failed to fetch'))
+
+    const { wrapper } = await mountDetail()
+
+    expect(wrapper.get('h2').text()).toBe('Rick Sanchez')
+    expect(wrapper.text()).toContain('Earth (C-137)')
+    expect(wrapper.text()).toContain('server is busy')
+
+    fetchMock.mockReset()
+    fetchMock.mockResolvedValueOnce(ok([episode(1, 'S01E01', 'Pilot')]))
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Retry')
+      .trigger('click')
+    await flushPromises()
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(wrapper.findAll('[data-testid="episode-list"] li')).toHaveLength(1)
+  })
+
+  it('從列表點進來的角色直接顯示，不再請求角色資料', async () => {
+    rememberCharacters([rick])
+    fetchMock.mockResolvedValueOnce(ok([episode(1, 'S01E01', 'Pilot')]))
+
+    const { wrapper } = await mountDetail()
+
+    expect(wrapper.get('h2').text()).toBe('Rick Sanchez')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0][0]).toContain('/episode/')
   })
 })

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { API_URL, ERROR_MESSAGE, NotFoundError, fetchJson, getRememberedCharacter } from '@/api'
 
 const props = defineProps({
   id: {
@@ -9,7 +10,6 @@ const props = defineProps({
   }
 })
 
-const API_URL = 'https://rickandmortyapi.com/api'
 const router = useRouter()
 
 const character = ref(null)
@@ -17,6 +17,8 @@ const episodes = ref([])
 const loading = ref(false)
 const notFound = ref(false)
 const error = ref('')
+const episodesLoading = ref(false)
+const episodesError = ref('')
 
 // 換角色時丟掉上一個角色還沒回來的回應
 let requestId = 0
@@ -24,42 +26,52 @@ let requestId = 0
 // 角色資料裡的集數是一串網址，取出最後的編號
 const episodeIds = (urls) => urls.map((url) => url.split('/').pop())
 
+// 集數另外載入：失敗時角色資料照樣顯示，只在集數區塊提示重試
+const loadEpisodes = async (id = requestId) => {
+  const ids = episodeIds(character.value.episode)
+  if (!ids.length) return
+  episodesLoading.value = true
+  episodesError.value = ''
+  try {
+    // 只有一集時 API 回傳物件而不是陣列
+    const list = await fetchJson(`${API_URL}/episode/${ids.join(',')}`)
+    if (id !== requestId) return
+    episodes.value = Array.isArray(list) ? list : [list]
+  } catch {
+    if (id === requestId) episodesError.value = ERROR_MESSAGE
+  } finally {
+    if (id === requestId) episodesLoading.value = false
+  }
+}
+
 const load = async () => {
   const id = ++requestId
-  loading.value = true
   notFound.value = false
   error.value = ''
-  character.value = null
   episodes.value = []
+  episodesError.value = ''
 
-  try {
-    const response = await fetch(`${API_URL}/character/${props.id}`)
-    if (id !== requestId) return
-    if (response.status === 404) {
-      notFound.value = true
+  // 從列表點進來的角色已經有資料，直接顯示，不用再等 API
+  character.value = getRememberedCharacter(props.id)
+
+  if (!character.value) {
+    loading.value = true
+    try {
+      const data = await fetchJson(`${API_URL}/character/${props.id}`)
+      if (id !== requestId) return
+      character.value = data
+    } catch (e) {
+      if (id !== requestId) return
+      if (e instanceof NotFoundError) notFound.value = true
+      else error.value = ERROR_MESSAGE
       return
+    } finally {
+      if (id === requestId) loading.value = false
     }
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json()
-    if (id !== requestId) return
-    character.value = data
-    document.title = `${data.name} | Rick and Morty`
-
-    // 一次抓回所有集數；只有一集時 API 回傳物件而不是陣列
-    const ids = episodeIds(data.episode)
-    if (ids.length) {
-      const res = await fetch(`${API_URL}/episode/${ids.join(',')}`)
-      if (id !== requestId) return
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const list = await res.json()
-      if (id !== requestId) return
-      episodes.value = Array.isArray(list) ? list : [list]
-    }
-  } catch {
-    if (id === requestId) error.value = 'Failed to load. Please try again.'
-  } finally {
-    if (id === requestId) loading.value = false
   }
+
+  document.title = `${character.value.name} | Rick and Morty`
+  await loadEpisodes(id)
 }
 
 watch(() => props.id, load, { immediate: true })
@@ -137,6 +149,18 @@ const statusColor = {
         </dl>
       </div>
     </article>
+
+    <p v-if="episodesLoading" class="mt-8 font-bold text-center text-xl">Loading episodes...</p>
+
+    <div v-if="episodesError" class="mt-8 text-center">
+      <p class="font-bold text-xl mb-4">{{ episodesError }}</p>
+      <button
+        class="px-4 py-2 bg-gray-200 rounded-xl text-gray-700 hover:bg-gray-300 shadow-xl"
+        @click="loadEpisodes()"
+      >
+        Retry
+      </button>
+    </div>
 
     <section v-if="episodes.length" class="mt-8">
       <h3 class="text-2xl font-bold mb-4">Episodes</h3>
